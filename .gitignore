@@ -1,0 +1,5 @@
+__pycache__
+genshin/
+env/
+.*.swp
+.*.swo
