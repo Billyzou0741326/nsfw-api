@@ -2,6 +2,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from collections.abc import Iterable
 from tensorflow import keras
 from PIL import Image, UnidentifiedImageError
+from urllib.parse import urlparse
 import io
 import json
 import httpx
@@ -54,7 +55,10 @@ class ImageUrl(ImageBase):
 
     @classmethod
     def _download_image(cls, url):
-        response = httpx.get(url, timeout=5)
+        u = urlparse(url)
+        scheme = u.scheme if u.scheme == '' else 'http'
+        headers = { 'Referer': f'{scheme}://{u.netloc}/' }
+        response = httpx.get(url, timeout=5, headers=headers)
         if not response.is_success:
             return b''
         return response.content
