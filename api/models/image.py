@@ -8,7 +8,7 @@ import json
 import httpx
 
 
-IMG_DIM = 224
+IMG_DIM = 299
 
 
 class ImageBase:
@@ -58,7 +58,7 @@ class ImageUrl(ImageBase):
         u = urlparse(url)
         scheme = u.scheme if u.scheme == '' else 'http'
         headers = { 'Referer': f'{scheme}://{u.netloc}/' }
-        response = httpx.get(url, timeout=5, headers=headers)
+        response = httpx.get(url, timeout=10, headers=headers)
         if not response.is_success:
             return b''
         return response.content
@@ -66,7 +66,7 @@ class ImageUrl(ImageBase):
     @classmethod
     def _download_images_parallel(cls, urls):
         results = []
-        with ThreadPoolExecutor(max_workers=8) as executor:
+        with ThreadPoolExecutor(max_workers=24) as executor:
             future_to_url = {executor.submit(cls._download_image, url): url for url in urls}
             for future in as_completed(future_to_url):
                 data = future.result()

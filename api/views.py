@@ -7,6 +7,7 @@ from rest_framework import status
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.parsers import FormParser, MultiPartParser
 
 from .models import NSFWModel, ImageBinary, ImageUrl
 
@@ -15,6 +16,7 @@ from .models import NSFWModel, ImageBinary, ImageUrl
 class Predict(APIView):
 
     renderer_classes = [JSONRenderer]
+    parser_classes = [FormParser, MultiPartParser]
 
     def get(self, request):
         if not NSFWModel.is_ready():
@@ -34,7 +36,7 @@ class Predict(APIView):
             IProcessor = ImageBinary
         else:
             # Invalid mimetype
-            return Response({'valid': {}, 'invalid': {}, 'error': 'Invalid request'})
+            return Response({'valid': {}, 'invalid': {}, 'error': f'Invalid content-type {request.content_type}'})
         try:
             valid_images, invalid_images = IProcessor.prepare(request)
             json_valid = {}
@@ -52,3 +54,4 @@ class Predict(APIView):
             return Response({'valid': {}, 'invalid': {}, 'error': f'Invalid json data: {exc}'})
         except Exception as exc:
             return Response({'valid': {}, 'invalid': {}, 'error': str(exc)})
+        return Response({'valid': {}, 'invalid': {}, 'error': f'Bad request'})

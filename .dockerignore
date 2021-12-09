@@ -4,3 +4,5 @@ genshin/
 env/
 .*.swp
 .*.swo
+
+mobilenet_v2_140_224/
